@@ -495,6 +495,10 @@ describe('ReactDOMFizzServer', () => {
       pipe(writable);
     });
     expect(getVisibleChildren(container)).toEqual(<div>Loading...</div>);
+    // Because there is no content inside the Suspense boundary that could've
+    // been written, we expect to not see any additional partial data flushed
+    // yet.
+    expect(container.firstChild.nextSibling).toBe(null);
     await act(async () => {
       resolveElement({default: <Text text="Hello" />});
     });
@@ -914,7 +918,7 @@ describe('ReactDOMFizzServer', () => {
         </Suspense>,
         {
           identifierPrefix: 'A_',
-          onCompleteShell() {
+          onShellReady() {
             writableA.write('<div id="container-A">');
             pipe(writableA);
             writableA.write('</div>');
@@ -933,7 +937,7 @@ describe('ReactDOMFizzServer', () => {
         </Suspense>,
         {
           identifierPrefix: 'B_',
-          onCompleteShell() {
+          onShellReady() {
             writableB.write('<div id="container-B">');
             pipe(writableB);
             writableB.write('</div>');
@@ -1168,7 +1172,7 @@ describe('ReactDOMFizzServer', () => {
 
         {
           namespaceURI: 'http://www.w3.org/2000/svg',
-          onCompleteShell() {
+          onShellReady() {
             writable.write('<svg>');
             pipe(writable);
             writable.write('</svg>');
@@ -2453,6 +2457,55 @@ describe('ReactDOMFizzServer', () => {
       'Logged recoverable error: Hydration error',
       'Logged recoverable error: There was an error while hydrating this ' +
         'Suspense boundary. Switched to client rendering.',
+    ]);
+  });
+
+  // @gate enableServerContext && experimental
+  it('supports ServerContext', async () => {
+    let ServerContext;
+    function inlineLazyServerContextInitialization() {
+      if (!ServerContext) {
+        ServerContext = React.createServerContext('ServerContext', 'default');
+      }
+      return ServerContext;
+    }
+
+    function Foo() {
+      inlineLazyServerContextInitialization();
+      return (
+        <>
+          <ServerContext.Provider value="hi this is server outer">
+            <ServerContext.Provider value="hi this is server">
+              <Bar />
+            </ServerContext.Provider>
+            <ServerContext.Provider value="hi this is server2">
+              <Bar />
+            </ServerContext.Provider>
+            <Bar />
+          </ServerContext.Provider>
+          <ServerContext.Provider value="hi this is server outer2">
+            <Bar />
+          </ServerContext.Provider>
+          <Bar />
+        </>
+      );
+    }
+    function Bar() {
+      const context = React.useContext(inlineLazyServerContextInitialization());
+      return <span>{context}</span>;
+    }
+
+    await act(async () => {
+      const {pipe} = ReactDOMFizzServer.renderToPipeableStream(<Foo />);
+      pipe(writable);
+    });
+
+    expect(getVisibleChildren(container)).toEqual([
+      <span>hi this is server</span>,
+      <span>hi this is server2</span>,
+      <span>hi this is server outer</span>,
+      <span>hi this is server outer2</span>,
+      <span>default</span>,
     ]);
   });
 });

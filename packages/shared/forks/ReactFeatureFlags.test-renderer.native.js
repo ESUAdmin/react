@@ -51,6 +51,7 @@ export const enableNewReconciler = false;
 export const deferRenderPhaseUpdateToNextBatch = false;
 export const enableSuspenseAvoidThisFallback = false;
 export const enableSuspenseAvoidThisFallbackFizz = false;
+export const enableCPUSuspense = false;
 export const enableCapturePhaseSelectiveHydrationWithoutDiscreteEventReplay = true;
 export const enableClientRenderFallbackOnHydrationMismatch = true;
 export const enableStrictEffects = false;
@@ -59,11 +60,13 @@ export const enableUseRefAccessWarning = false;
 
 export const disableSchedulerTimeoutInWorkLoop = false;
 export const enableLazyContextPropagation = false;
+export const enableLegacyHidden = false;
 export const enableSyncDefaultUpdates = true;
 export const allowConcurrentByDefault = true;
 export const enablePersistentOffscreenHostContainer = false;
 
 export const consoleManagedByDevToolsDuringStrictMode = false;
+export const enableServerContext = false;
 export const enableUseMutableSource = false;
 
 export const enableTransitionTracing = false;

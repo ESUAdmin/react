@@ -101,10 +101,15 @@ export const enableTransitionTracing = false;
 // No known bugs, but needs performance testing
 export const enableLazyContextPropagation = false;
 
+// FB-only usage. The new API has different semantics.
+export const enableLegacyHidden = false;
+
 // Enables unstable_avoidThisFallback feature in Fiber
 export const enableSuspenseAvoidThisFallback = false;
 // Enables unstable_avoidThisFallback feature in Fizz
 export const enableSuspenseAvoidThisFallbackFizz = false;
+
+export const enableCPUSuspense = __EXPERIMENTAL__;
 
 // When a node is unmounted, recurse into the Fiber subtree and clean out
 // references. Each level cleans up more fiber fields than the previous level.
@@ -247,6 +252,7 @@ export const enableUpdaterTracking = __PROFILE__;
 
 // Only enabled in RN, related to enableComponentStackLocations
 export const disableNativeComponentFrames = false;
+export const enableServerContext = __EXPERIMENTAL__;
 
 // Internal only.
 export const enableGetInspectorDataForInstanceInProduction = false;
